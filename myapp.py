@@ -44,3 +44,24 @@ if(file!=None):
     with tab4:
         st.subheader(':grey[Column names in dataset]')
         st.write(list(data.columns))
+        
+    st.subheader(':rainbow[Column Values To Count]', divider='rainbow')
+    with st.expander('Value Count'):
+        col1, col2 = st.columns(2)
+        with col1:
+            column = st.selectbox('Choose Column name', options=list(data.columns))
+        with col2:
+            toprows = st.number_input('Top Rows', min_value=1, step=1)
+           
+        count = st.button('Count')
+        if(count==True):
+            result = data[column].value_counts().reset_index().head(toprows)
+            st.dataframe(result)
+            st.subheader('Visualization', divider='gray')
+            fig = px.bar(data_frame=result, x=column, y='count', text='count', template='plotly_white')
+            st.plotly_chart(fig)
+            fig = px.line(data_frame=result, x=column, y='count', text='count', template='plotly_white')
+            st.plotly_chart(fig)
+            fig = px.pie(data_frame=result, names = column, values = 'count')
+            st.plotly_chart(fig)
+    
