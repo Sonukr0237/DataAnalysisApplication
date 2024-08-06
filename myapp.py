@@ -65,3 +65,52 @@ if(file!=None):
             fig = px.pie(data_frame=result, names = column, values = 'count')
             st.plotly_chart(fig)
     
+    st.subheader(':rainbow[Groupby simplify your data analysis]', divider='rainbow')
+    st.write('The groupby lets you summarize the data by specific categories and groups.')
+    with st.expander('Groupby your columns'):
+        col1,col2,col3 = st.columns(3)
+        with col1:
+            groupby_cols = st.multiselect('Choose your column to groupby', options=list(data.columns))
+        with col2:
+            operation_col = st.selectbox('Choose column for your operation', options=list(data.columns))
+        with col3:
+            operation = st.selectbox('Choose operation', options=['sum', 'max', 'min', 'mean', 'median', 'count'])
+            
+        if(groupby_cols):
+            result = data.groupby(groupby_cols).agg(
+                newcol = (operation_col, operation)
+            ).reset_index()
+            
+            st.dataframe(result)
+            
+            st.subheader(':gray[Data Visualization]', divider='gray')
+            graphs = st.selectbox('Choose your graphs', options=['line', 'bar', 'pie', 'scatter', 'sunburst'])
+            if(graphs=='line'):
+                x_axis = st.selectbox('Choose X axis', options=list(result.columns))
+                y_axis = st.selectbox('Choose Y axis', options=list(result.columns))
+                color = st.selectbox('Color Information', options=[None]+list(result.columns))
+                fig = px.line(data_frame=result, x=x_axis, y = y_axis, color = color, markers='o')
+                st.plotly_chart(fig)
+            elif(graphs=='bar'):
+                x_axis = st.selectbox('Choose X axis', options=list(result.columns))
+                y_axis = st.selectbox('Choose Y axis', options=list(result.columns))
+                color = st.selectbox('Color Information', options=[None]+list(result.columns))
+                facet_col = st.selectbox('Column Information', options=[None] + list(result.columns))
+                fig = px.bar(data_frame=result, x = x_axis, y=y_axis, color=color, facet_col=facet_col, barmode='group')
+                st.plotly_chart(fig)
+            elif(graphs=='scatter'):
+                x_axis = st.selectbox('Choose X axis', options=list(result.columns))
+                y_axis = st.selectbox('Choose Y axis', options=list(result.columns))
+                color = st.selectbox('Color Information', options=[None]+list(result.columns))
+                size = st.selectbox('Size Column', options = [None] + list(result.columns))
+                fig = px.scatter(data_frame=result, x=x_axis, y=y_axis, color=color, size=size)
+                st.plotly_chart(fig)
+            elif(graphs=='pie'):
+                values = st.selectbox('Choose Numerical Values', options=list(result.columns))
+                names = st.selectbox('Choose labels', options=list(result.columns))
+                fig = px.pie(data_frame=result, names=names, values=values)
+                st.plotly_chart(fig)
+            elif(graphs=='sunburst'):
+                path = st.multiselect('Choose your path', options=list(result.columns))
+                fig = px.sunburst(data_frame=result, path=path, values='newcol')
+                st.plotly_chart(fig)
